@@ -1,0 +1,32 @@
+# Local Python asset generation scripts & caches (not used at runtime)
+scripts/
+__pycache__/
+*.py
+*.pyc
+*.pyo
+.venv/
+venv/
+fonts/
+
+# Editor / AI workspace metadata
+.git/
+.vscode/
+.agent/
+.agents/
+.claude/
+.codebuddy/
+.codex/
+.continue/
+.cursor/
+.gemini/
+.github/
+.kiro/
+.opencode/
+.qoder/
+.roo/
+.trae/
+.windsurf/
+.antigravityrules
+AGENTS.md
+GEMINI.md
+*.log
