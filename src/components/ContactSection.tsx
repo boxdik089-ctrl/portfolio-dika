@@ -6,7 +6,8 @@ import {
   MessageSquare,
   ImagePlus,
   ArrowUpRight,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 
 interface Comment {
@@ -39,6 +40,7 @@ export const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSending, setIsSending] = useState(false);
   const [sendSuccess, setSendSuccess] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   // Guestbook Comments State
   const [comments, setComments] = useState<Comment[]>(() => {
@@ -63,17 +65,60 @@ export const ContactSection: React.FC = () => {
     } catch {}
   }, [comments]);
 
-  const handleMessageSubmit = (e: React.FormEvent) => {
+  const handleMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) return;
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const message = formData.message.trim();
+    if (!name || !email || !message) return;
 
     setIsSending(true);
-    setTimeout(() => {
-      setIsSending(false);
+    setSendSuccess(false);
+    setSendError(null);
+
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/boxdik089@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+          _subject: `Pesan Baru dari Portofolio — ${name}`,
+          _replyto: email,
+          _template: 'table',
+          _captcha: 'false'
+        })
+      });
+
+      const data = await response.json().catch(() => null);
+      const isOk = response.ok && (data?.success === true || data?.success === 'true');
+
+      if (!isOk) {
+        const rawMsg = typeof data?.message === 'string' ? data.message : '';
+        if (/activat|confirm|verify/i.test(rawMsg)) {
+          setSendError(
+            'Aktivasi form diperlukan: cek inbox boxdik089@gmail.com lalu klik link konfirmasi dari FormSubmit.'
+          );
+        } else {
+          setSendError(
+            rawMsg || 'Gagal mengirim pesan. Coba lagi sebentar atau hubungi lewat sosial media.'
+          );
+        }
+        return;
+      }
+
       setSendSuccess(true);
       setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setSendSuccess(false), 5000);
-    }, 1000);
+      setTimeout(() => setSendSuccess(false), 6000);
+    } catch {
+      setSendError('Koneksi gagal saat mengirim pesan. Periksa internet lalu coba lagi.');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,7 +241,14 @@ export const ContactSection: React.FC = () => {
               {sendSuccess && (
                 <div className="contact-success-toast" role="status">
                   <CheckCircle2 size={18} />
-                  <span>Pesan berhasil dikirim. Terima kasih!</span>
+                  <span>Pesan berhasil terkirim ke email Dika! Terima kasih.</span>
+                </div>
+              )}
+
+              {sendError && (
+                <div className="contact-error-toast" role="alert">
+                  <AlertCircle size={18} className="shrink-0" />
+                  <span>{sendError}</span>
                 </div>
               )}
             </form>
