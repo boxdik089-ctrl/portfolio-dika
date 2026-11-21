@@ -107,8 +107,6 @@ export const AboutSection: React.FC = () => {
               aria-hidden="true"
             />
           </div>
-          <span className="about-portrait-orbit about-portrait-orbit-one" />
-          <span className="about-portrait-orbit about-portrait-orbit-two" />
           <span className="about-portrait-spark" />
         </div>
 
